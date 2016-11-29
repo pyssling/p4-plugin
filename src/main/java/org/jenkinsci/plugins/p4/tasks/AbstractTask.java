@@ -195,6 +195,17 @@ public abstract class AbstractTask implements Serializable {
 			throw new AbortException(msg);
 		}
 
+		// Check that the client and the connection are consistent,
+		// this is a workaround for a bug where the underlying system
+		// returns a client with an incorrect workspace.
+		if (!p4.getClient().getName().equals(getClient())) {
+			String msg = "\nP4 Task: Inconsistent workspace " +
+				p4.getClient().getName()  + " != " + getClient();
+			logger.warning(msg);
+			p4.log(msg);
+			throw new AbortException(msg);
+		}
+
 		int trys = 0;
 		int attempt = p4.getRetry();
 		Exception last = null;
